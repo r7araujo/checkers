@@ -8,4 +8,3 @@ while True:
         turn = 'B'
     else:
         turn = 'W'
-    

@@ -24,6 +24,10 @@ def display_board(board):
         print()
 
 def move_piece(board, turn):
+    if turn == 'W':
+        nturn = 'B'
+    if turn == 'B':
+        nturn = 'W'
     while True:
         row = int(input("Type the row of the piece that you'd like to move: "))
         col = int(input("Type the col of the piece that you'd like to move: "))
@@ -31,7 +35,19 @@ def move_piece(board, turn):
         ncol = int(input("Type the new col of the piece that you'd like to move: "))
         if board[row][col] != turn:
             print('Invalid! You need to move some piece and not a white space or a enemy piece.')
+        elif not ((abs(nrow - row) == 1 and abs(ncol - col) == 1) or (abs(nrow - row) == 2 and abs(ncol - col) == 2)):
+            print('Invalid! it is not a valid moviment!')
+        elif abs(nrow - row) == 2 and board[(nrow + row) // 2][(ncol + col) // 2] != nturn:
+            print('Invalid! it is not a valid moviment.')
+        elif board[nrow][ncol] != "_":
+            print('Invalid! it is not a valid moviment.') 
+        elif turn == 'B' and (nrow-row) < 0:
+            print('Invalid! it is not a valid moviment.')
+        elif turn == 'W' and (nrow-row) > 0:
+            print('Invalid! it is not a valid moviment.')   
         else:
+            if abs(nrow-row) == 2 and abs(ncol-col) == 2:
+                board[(nrow+row)//2][(ncol+col)//2] = '_'
             temp_value = board[row][col]
             board[nrow][ncol] = temp_value
             board[row][col] = "_"
