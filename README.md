@@ -1,7 +1,5 @@
 # Checkers Game in Python
 
-A terminal-based Checkers game (Brazilian rules) developed in Python. This project was built to apply practical concepts of two-dimensional arrays (matrices), boolean algebra, and highly optimized control flow structures.
-
 ## 🚀 Implemented Features
 
 The game engine currently runs on a main game loop (`while True`) and features a robust move validation system inside the master `move_piece` function:
