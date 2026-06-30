@@ -20,8 +20,7 @@ The game engine currently runs on a main game loop (`while True`) and features a
 
 ## 📋 Next Steps
 
-- [ ] Implement the **King piece (Dama)** promotion system when reaching the edge of the board.
-- [ ] Implement long-range flying moves and multi-capture mechanics for King pieces.
+- [ ] Implement multi-capture mechanics for King pieces and checker pieces.
 - [ ] Create win/loss conditions (detecting game over when a player runs out of pieces or valid moves).
 - [ ] Development of graphical interface
 

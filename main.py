@@ -3,8 +3,11 @@ board = create_board()
 turn = 'W'
 while True:
     display_board(board)
-    board = move_piece(board, turn)
-    if turn == 'W':
-        turn = 'B'
-    else:
-        turn = 'W'
+    board, nrow, ncol = move_piece(board, turn)
+    board = check_queen(board, nrow, ncol)
+    switch = check_sequence(board, turn, nrow, ncol)
+    if switch == True:        
+        if turn == 'W': #switch the turn
+            turn = 'B'
+        else:
+            turn = 'W'
