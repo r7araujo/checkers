@@ -5,7 +5,7 @@ def create_board():
         t_list = [] # temporary list
         for col in range(8):
             if (col+row) % 2 == 0:
-                t_list.append(0)
+                t_list.append("0")
             else:
                 if row < 3:
                     t_list.append('B') # black piece
@@ -31,30 +31,23 @@ def check_piece(board, row, col):
         valid_moviment = 'c' #checker
         return valid_moviment
 
-def move_piece(board, turn):
+def move_piece(board, turn, nrow, ncol, row, col):
     # Function that move the checkers.
-    if turn == 'W':
-        nturn = 'B'
-    if turn == 'B':
-        nturn = 'W'
-    while True:
-        row = int(input("Type the row of the piece that you'd like to move: "))
-        col = int(input("Type the col of the piece that you'd like to move: "))
-        check_answer = check_piece(board, row, col)
-        nrow = int(input("Type the new row to the piece that you'd like to move: "))
-        ncol = int(input("Type the new col of the piece that you'd like to move: "))
-        if check_answer == 'k':
-            sucess = move_king(board, turn, nturn, row, col, nrow, ncol)
-        else:
-            sucess = move_checker(board, turn, nturn, row, col, nrow, ncol)
-        if sucess == True:
-            break
-    return board, nrow, ncol
+    if turn == 'W': nturn = 'B'
+    if turn == 'B': nturn = 'W'
+    check_answer = check_piece(board, row, col)
+    if check_answer == 'k':
+        sucess, enemy_positions = move_king(board, turn, nturn, row, col, nrow, ncol)
+    else:
+        sucess, enemy_positions = move_checker(board, turn, nturn, row, col, nrow, ncol)
+    if sucess == False:
+        return False, []
+    return True, enemy_positions
 
 def move_king(board, turn, nturn, row, col, nrow, ncol):
     # rules of king moviment
     if abs(nrow-row) != abs(ncol-col):
-        print('Invalid! The king only can move on diagonal.')
+        return False
     if nrow > row:
         step_row = 1
     else:
@@ -81,38 +74,40 @@ def move_king(board, turn, nturn, row, col, nrow, ncol):
         tcol = tcol + step_col
     if valid == True:
         if board[nrow][ncol] != '_':
-            print('Invalid moviment!')
             return False
         elif len(enemy_positions) == 1:
             enemy_row, enemy_col = enemy_positions[0]
             board[enemy_row][enemy_col] = '_'
         board[nrow][ncol] = board[row][col]
         board[row][col] = '_'
-        return True
+        return True, enemy_positions
     else: 
-        return False
+        return False, []
 
 def move_checker(board, turn, nturn, row, col, nrow, ncol):
     # rules of checker moviment
+    enemy_positions = []
     if turn not in board[row][col]:
-        print('Invalid! You need to move some piece and not a white space or a enemy piece.')
+        return False, []
     elif not ((abs(nrow - row) == 1 and abs(ncol - col) == 1) or (abs(nrow - row) == 2 and abs(ncol - col) == 2)):
-        print('Invalid! it is not a valid moviment!')
+        return False, []
     elif ((abs(nrow - row) == 2) and nturn not in board[(nrow + row) // 2][(ncol + col) // 2]):
-        print('Invalid! it is not a valid moviment.')
+        return False, []
     elif board[nrow][ncol] != "_":
-        print('Invalid! it is not a valid moviment.') 
+        return False, [] 
     elif turn == 'B' and (nrow-row) < 0 and board[row][col] == 'B':
-        print('Invalid! it is not a valid moviment.')
+        return False, []
     elif turn == 'W' and (nrow-row) > 0 and board[row][col] == 'W':
-        print('Invalid! it is not a valid moviment.')   
+        return False, []
     else:
         if abs(nrow-row) == 2 and abs(ncol-col) == 2:
+            enemy_positions.append(((nrow+row)//2, (ncol+col)//2))
             board[(nrow+row)//2][(ncol+col)//2] = '_'
         temp_value = board[row][col]
         board[nrow][ncol] = temp_value
         board[row][col] = "_"
-    return board, nrow, ncol
+
+    return True, enemy_positions
 
 def check_queen(board, nrow, ncol):
     # Check if the moved piece will be promoted to a queen
@@ -121,3 +116,4 @@ def check_queen(board, nrow, ncol):
     elif board[nrow][ncol] == 'B' and nrow == 7:
         board[nrow][ncol] = 'BB'
     return board
+
