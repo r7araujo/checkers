@@ -22,7 +22,6 @@ The game engine currently runs on a main game loop (`while True`) and features a
 
 - [ ] Implement multi-capture mechanics for King pieces and checker pieces.
 - [ ] Create win/loss conditions (detecting game over when a player runs out of pieces or valid moves).
-- [ ] Development of graphical interface
 
 ---
 Developed by Guilherme Ribeiro de Araujo (r7araujo) as a project to study software engineering fundamentals and programming logic.
