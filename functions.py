@@ -117,3 +117,58 @@ def check_queen(board, nrow, ncol):
         board[nrow][ncol] = 'BB'
     return board
 
+def get_mandatory_captures(board, turn):
+    # check if the player has any capture to do
+    mandatory_move = []
+    if turn == 'W': nturn = 'B'
+    if turn == 'B': nturn = 'W'
+    for r in range(8):
+        for c in range(8):
+            if turn in board[r][c]:
+                if board[r][c] == 'WW' or board[r][c] == 'BB':
+                    #check the possible captures to the queen
+                    mandatory_move = []
+                else:
+                    #check the captures to the checker
+                    test_enemy = [(-1,-1), (-1,1), (1,-1), (1,1)]
+                    for dr, dc in test_enemy:
+                        if 0 <= (r+dr) <= 7 and 0 <= (c+dc) <= 7 and 0 <= (r+2*dr) <= 7 and 0 <= (c+2*dc) <= 7:
+                            if nturn in board[r+dr][c+dc] and '_' in board[r+2*dr][c+2*dc]:
+                                mandatory_move.append((r,c,r+2*dr,c+2*dc))
+    return mandatory_move
+def check_sequence(board, turn, nrow, ncol, row, col):
+    if turn == 'W': nturn = 'B'
+    if turn == 'B': nturn = 'W'
+    directions = [(-1, -1), (1, -1), (-1, 1), (1, 1)]
+    delta_r = (nrow-row) // abs(nrow-row) if nrow != row else 0
+    delta_c = (ncol-col) // abs(ncol-col) if ncol != col else 0
+    blocked_direction = (delta_r, delta_c)
+    valid_directions = [d for d in directions if d != blocked_direction]
+    if board[nrow][ncol] == 'WW' or board[nrow][ncol] == 'BB':
+        for dr, dc in valid_directions:
+            step = 1
+            found_piece = None
+            while 0 <= nrow + (step * dr) < 8 and 0 <= ncol + (step * dc) < 8:
+                actual_r = nrow + (step * dr)
+                actual_c = ncol + (step * dc)
+                thing = board[actual_r][actual_c]
+                
+                if thing != '_':
+                    if found_piece is not None:
+                        break
+                    found_piece = (thing, actual_r, actual_c)
+                elif found_piece is not None:
+                    piece_owner, enemy_r, enemy_c = found_piece
+                    if piece_owner in nturn:
+                        return True
+                    else:
+                        break
+                step += 1
+    else:
+        for dr, dc in valid_directions:
+            found_piece = None
+            if 0 <= nrow+dr < 8 and 0 <= ncol+dc < 8 and 0 <= nrow+2*dr < 8 and 0 <= ncol+2*dc < 8:
+                if nturn in board[nrow+dr][ncol+dc] and '_' in board[nrow+2*dr][ncol+2*dc]:
+                    return True
+
+    return False

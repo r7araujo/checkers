@@ -1,10 +1,10 @@
-import sys, pygame
+import pygame
+import sys
 from functions import *
-
 pygame.init()
-square_size = 80
 width, height = 640, 640
-screen = pygame.display.set_mode((width,height))
+square_size = width // 8
+screen = pygame.display.set_mode((width + 160, height))
 pygame.display.set_caption('The checkers game')
 
 # colors
@@ -20,8 +20,11 @@ clock = pygame.time.Clock()
 running = True
 selected = None
 turn = 'W'
+mandatory_move = []
+necessary_sequence = []
 while running:
     clock.tick(60)
+    mandatory_move = get_mandatory_captures(board, turn)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -31,29 +34,63 @@ while running:
             pos = pygame.mouse.get_pos()
             col = pos[0] // square_size
             row = pos[1] // square_size
+            if col >= 8 or row >= 8:
+                continue
             if turn in board[row][col]:
                 selected = (row, col)
             
             elif selected != None: #the second click is to move the piece
-                nrow = row
-                ncol = col
+                nrow, ncol = row, col
                 row, col = selected
-                sucess, enemy_positions = move_piece(board, turn, nrow, ncol, row, col)
-                if not sucess:
-                    pygame.draw.rect(screen, red, (ncol * square_size, nrow * square_size, square_size, square_size))
-                    pygame.display.flip()
-                    pygame.time.delay(200)
+                if len(mandatory_move) > 0:
+                    if (row, col, nrow, ncol) in mandatory_move:
+                        sucess, enemy_positions = move_piece(board, turn, nrow, ncol, row, col)
+                        board = check_queen(board, nrow, ncol)
+                        sequence = check_sequence(board, turn, nrow, ncol, row, col)
+                        if sequence == False:   
+                            selected = None
+                            if turn == 'W': #switch the turn
+                                turn = 'B'
+                            else:
+                                turn = 'W'
+                        else: # sequence True
+                            selected = (nrow, ncol)
+                            mandatory_move = [m for m in get_mandatory_captures(board, turn) if m[0] == nrow and m[1] == ncol]
+                    else:
+                        pygame.draw.rect(screen, red, (col * square_size, row * square_size, square_size, square_size))
+                        pygame.draw.rect(screen, red, (ncol * square_size, nrow * square_size, square_size, square_size))
+                        pygame.display.flip()
+                        pygame.time.delay(200)    
                 else:
-                    board = check_queen(board, nrow, ncol)
-                    switch = check_sequence(board, turn, nrow, ncol)
-                    if switch == True:        
-                        if turn == 'W': #switch the turn
-                            turn = 'B'
+                    sucess, enemy_positions = move_piece(board, turn, nrow, ncol, row, col)
+                    if not sucess:
+                        pygame.draw.rect(screen, red, (ncol * square_size, nrow * square_size, square_size, square_size))
+                        pygame.display.flip()
+                        pygame.time.delay(200)
+                    else:
+                        board = check_queen(board, nrow, ncol)
+                        sequence = check_sequence(board, turn, nrow, ncol, row, col)
+                        if sequence == False:  
+                            selected = None      
+                            if turn == 'W': #switch the turn
+                                turn = 'B'
+                            else:
+                                turn = 'W'
                         else:
-                            turn = 'W'
-            
+                            selected = (nrow,ncol)
+                            mandatory_move = [m for m in get_mandatory_captures(board, turn) if m[0] == nrow and m[1] == ncol]
+                
 
     screen.fill(beige)
+    pygame.draw.rect(screen, (30, 30, 30), (640, 0, 160, 640))
+    if turn == 'W':
+        color_turn = (255, 255, 255)
+        board_color = (100, 100, 100)
+    else:
+        color_turn = (0, 0, 0)
+        board_color = (200, 200, 200)
+    pygame.draw.circle(screen, color_turn, (720, 120), 40)
+    pygame.draw.circle(screen, board_color, (720, 120), 40, 3)
     # draw the board
     for r in range(8):
         for c in range(8):
@@ -80,23 +117,3 @@ while running:
         pygame.draw.rect(screen, red, (c*square_size, r*square_size, square_size, square_size), 4)
 
     pygame.display.flip()
-            
-
-
-
-
-
-
-
-
-turn = 'W'
-while True:
-    display_board(board)
-    board, nrow, ncol = move_piece(board, turn)
-    board = check_queen(board, nrow, ncol)
-    switch = check_sequence(board, turn, nrow, ncol)
-    if switch == True:        
-        if turn == 'W': #switch the turn
-            turn = 'B'
-        else:
-            turn = 'W'
