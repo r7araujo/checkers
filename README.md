@@ -1,5 +1,7 @@
 # Checkers Game in Python
-
+<p align="center">
+  <img width="811" height="655" alt="image" src="https://github.com/user-attachments/assets/7dea9781-16e6-4a51-ab3c-30456092b812" />
+</p>
 ## 🚀 Implemented Features
 
 The game engine currently runs on a main game loop (`while True`) and features a robust move validation system inside the master `move_piece` function:
