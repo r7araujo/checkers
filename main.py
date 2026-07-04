@@ -1,6 +1,7 @@
 import pygame
 import sys
 from functions import *
+
 pygame.init()
 width, height = 640, 640
 square_size = width // 8
@@ -34,7 +35,7 @@ while running:
             pos = pygame.mouse.get_pos()
             col = pos[0] // square_size
             row = pos[1] // square_size
-            if col >= 8 or row >= 8:
+            if col >= 8 or row >= 8: # avoid clicks out the board
                 continue
             if turn in board[row][col]:
                 selected = (row, col)
@@ -46,7 +47,7 @@ while running:
                     if (row, col, nrow, ncol) in mandatory_move:
                         sucess, enemy_positions = move_piece(board, turn, nrow, ncol, row, col)
                         board = check_queen(board, nrow, ncol)
-                        sequence = check_sequence(board, turn, nrow, ncol, row, col)
+                        sequence = check_sequence(board, turn, nrow, ncol, row, col, enemy_positions)
                         if sequence == False:   
                             selected = None
                             if turn == 'W': #switch the turn
@@ -69,7 +70,7 @@ while running:
                         pygame.time.delay(200)
                     else:
                         board = check_queen(board, nrow, ncol)
-                        sequence = check_sequence(board, turn, nrow, ncol, row, col)
+                        sequence = check_sequence(board, turn, nrow, ncol, row, col, enemy_positions)
                         if sequence == False:  
                             selected = None      
                             if turn == 'W': #switch the turn

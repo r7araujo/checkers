@@ -95,9 +95,9 @@ def move_checker(board, turn, nturn, row, col, nrow, ncol):
         return False, []
     elif board[nrow][ncol] != "_":
         return False, [] 
-    elif turn == 'B' and (nrow-row) < 0 and board[row][col] == 'B':
+    elif turn == 'B' and (nrow-row) < 0 and board[row][col] == 'B' and abs(nrow-row) != 2:
         return False, []
-    elif turn == 'W' and (nrow-row) > 0 and board[row][col] == 'W':
+    elif turn == 'W' and (nrow-row) > 0 and board[row][col] == 'W' and abs(nrow-row) != 2:
         return False, []
     else:
         if abs(nrow-row) == 2 and abs(ncol-col) == 2:
@@ -125,9 +125,28 @@ def get_mandatory_captures(board, turn):
     for r in range(8):
         for c in range(8):
             if turn in board[r][c]:
-                if board[r][c] == 'WW' or board[r][c] == 'BB':
-                    #check the possible captures to the queen
-                    mandatory_move = []
+                if board[r][c] == 'WW' or board[r][c] == 'BB': # check the captures to the king
+                    directions = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
+                    for dr, dc in directions:
+                        step_r = r + dr
+                        step_c = c + dc
+                        enemy_piece = None
+                        pos_enemy_r, pos_enemy_c = -1, -1
+                        while 0 <= step_r <= 7 and 0 <= step_c <= 7:
+                            actual_position = board[step_r][step_c]
+                            if '_' in actual_position:
+                                if enemy_piece:
+                                    mandatory_move.append((r, c, step_r, step_c))
+                                    break 
+                            elif nturn in actual_position:
+                                if peca_inimiga_encontrada:
+                                    break
+                                enemy_piece = True
+                                pos_enemy_r, pos_enemy_c = step_r, step_c
+                            else:
+                                break
+                            step_r += dr
+                            step_c += dc
                 else:
                     #check the captures to the checker
                     test_enemy = [(-1,-1), (-1,1), (1,-1), (1,1)]
@@ -136,7 +155,9 @@ def get_mandatory_captures(board, turn):
                             if nturn in board[r+dr][c+dc] and '_' in board[r+2*dr][c+2*dc]:
                                 mandatory_move.append((r,c,r+2*dr,c+2*dc))
     return mandatory_move
-def check_sequence(board, turn, nrow, ncol, row, col):
+def check_sequence(board, turn, nrow, ncol, row, col, enemy_positions):
+    if len(enemy_positions) == 0:
+        return False
     if turn == 'W': nturn = 'B'
     if turn == 'B': nturn = 'W'
     directions = [(-1, -1), (1, -1), (-1, 1), (1, 1)]
