@@ -1,28 +1,20 @@
-import pygame
-import sys
+import pygame, pygame_gui, sys
 from functions import *
+from config import *
 
 pygame.init()
-width, height = 640, 640
-square_size = width // 8
 screen = pygame.display.set_mode((width + 160, height))
+ui_manager = pygame_gui.UIManager((width+160, height))
 pygame.display.set_caption('The checkers game')
-
-# colors
-beige = (240, 217, 181)
-brown = (181, 136, 99)
-white = (255, 255, 255)
-black = (50, 50, 50)
-red = (255, 0, 0)
-
 board = create_board()
 clock = pygame.time.Clock()
-
+play_again_button = None
 running = True
 selected = None
 turn = 'W'
 mandatory_move = []
 necessary_sequence = []
+black_points = white_points = 0
 while running:
     clock.tick(60)
     mandatory_move = get_mandatory_captures(board, turn)
@@ -35,7 +27,7 @@ while running:
             pos = pygame.mouse.get_pos()
             col = pos[0] // square_size
             row = pos[1] // square_size
-            if col >= 8 or row >= 8: # avoid clicks out the board
+            if col >= 8 or row >= 8: # avoid clicks out of the board
                 continue
             if turn in board[row][col]:
                 selected = (row, col)
@@ -46,6 +38,8 @@ while running:
                 if len(mandatory_move) > 0:
                     if (row, col, nrow, ncol) in mandatory_move:
                         sucess, enemy_positions = move_piece(board, turn, nrow, ncol, row, col)
+                        if turn == 'W': white_points = white_points + 1
+                        else: black_points = black_points + 1
                         board = check_queen(board, nrow, ncol)
                         sequence = check_sequence(board, turn, nrow, ncol, row, col, enemy_positions)
                         if sequence == False:   
@@ -116,5 +110,8 @@ while running:
     if selected is not None:
         r, c = selected
         pygame.draw.rect(screen, red, (c*square_size, r*square_size, square_size, square_size), 4)
+    if black_points == 12: winner = 'B'
+    elif white_points == 12: winner = 'W'
+
 
     pygame.display.flip()
