@@ -1,6 +1,6 @@
 # Checkers Game in Python
 <p align="center">
-  <img width="811" height="655" alt="image" src="https://github.com/user-attachments/assets/7dea9781-16e6-4a51-ab3c-30456092b812" />
+  <img width="483" height="322" alt="image" src="https://github.com/user-attachments/assets/41ded80d-e6b8-467c-8d72-da30f993f2f7" />
 </p>
 
 ## 🚀 Implemented Features
