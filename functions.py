@@ -139,7 +139,7 @@ def get_mandatory_captures(board, turn):
                                     mandatory_move.append((r, c, step_r, step_c))
                                     break 
                             elif nturn in actual_position:
-                                if peca_inimiga_encontrada:
+                                if enemy_piece:
                                     break
                                 enemy_piece = True
                                 pos_enemy_r, pos_enemy_c = step_r, step_c
@@ -163,7 +163,7 @@ def check_sequence(board, turn, nrow, ncol, row, col, enemy_positions):
     directions = [(-1, -1), (1, -1), (-1, 1), (1, 1)]
     delta_r = (nrow-row) // abs(nrow-row) if nrow != row else 0
     delta_c = (ncol-col) // abs(ncol-col) if ncol != col else 0
-    blocked_direction = (delta_r, delta_c)
+    blocked_direction = (delta_r*-1, delta_c*-1)
     valid_directions = [d for d in directions if d != blocked_direction]
     if board[nrow][ncol] == 'WW' or board[nrow][ncol] == 'BB':
         for dr, dc in valid_directions:

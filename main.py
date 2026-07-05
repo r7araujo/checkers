@@ -1,6 +1,7 @@
 import pygame, pygame_gui, sys
 from functions import *
 from config import *
+from menus import *
 
 pygame.init()
 screen = pygame.display.set_mode((width + 160, height))
@@ -15,14 +16,26 @@ turn = 'W'
 mandatory_move = []
 necessary_sequence = []
 black_points = white_points = 0
+game_state = 'START_MENU'
+menu_play_button = main_menu(ui_manager)
+
+
 while running:
     clock.tick(60)
+    time_delta = clock.tick(60) / 1000.0
     mandatory_move = get_mandatory_captures(board, turn)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
             pygame.quit()
             sys.exit()
+        elif game_state == 'START_MENU':
+            ui_manager.process_events(event)
+            if event.type == pygame_gui.UI_BUTTON_PRESSED:
+                menu_play_button.kill()
+                menu_play_button = None
+                game_state = 'PLAYING'
+                continue
         elif event.type == pygame.MOUSEBUTTONDOWN:
             pos = pygame.mouse.get_pos()
             col = pos[0] // square_size
@@ -75,43 +88,48 @@ while running:
                             selected = (nrow,ncol)
                             mandatory_move = [m for m in get_mandatory_captures(board, turn) if m[0] == nrow and m[1] == ncol]
                 
-
-    screen.fill(beige)
-    pygame.draw.rect(screen, (30, 30, 30), (640, 0, 160, 640))
-    if turn == 'W':
-        color_turn = (255, 255, 255)
-        board_color = (100, 100, 100)
-    else:
-        color_turn = (0, 0, 0)
-        board_color = (200, 200, 200)
-    pygame.draw.circle(screen, color_turn, (720, 120), 40)
-    pygame.draw.circle(screen, board_color, (720, 120), 40, 3)
-    # draw the board
-    for r in range(8):
-        for c in range(8):
-            if (r+c) % 2 == 1:
-                pygame.draw.rect(screen, brown, (c*square_size, r*square_size, square_size, square_size))
-    # draw the pieces
-    for r in range(8):
-        for c in range(8):
-            center_x = c * square_size + square_size // 2
-            center_y = r * square_size + square_size // 2
-            radius = square_size // 2 - 10
-            if board[r][c] == 'B':
-                pygame.draw.circle(screen,black, (center_x, center_y), radius)
-            elif board[r][c] == 'BB':
-                pygame.draw.circle(screen,black, (center_x, center_y), radius)
-                pygame.draw.circle(screen,red, (center_x, center_y), radius // 3)
-            elif board[r][c] == 'W':
-                pygame.draw.circle(screen, white, (center_x, center_y), radius)
-            elif board[r][c] == 'WW':
-                pygame.draw.circle(screen, white, (center_x, center_y), radius)
-                pygame.draw.circle(screen,red, (center_x, center_y), radius // 3)
+    ui_manager.update(time_delta)
+    if game_state == 'START_MENU':
+        screen.fill((30, 30, 30))
+        ui_manager.draw_ui(screen)
+    elif game_state == 'PLAYING':
+        screen.fill(beige)
+        pygame.draw.rect(screen, (30, 30, 30), (640, 0, 160, 640))
+        if turn == 'W':
+            color_turn = (255, 255, 255)
+            board_color = (100, 100, 100)
+        else:
+            color_turn = (0, 0, 0)
+            board_color = (200, 200, 200)
+        pygame.draw.circle(screen, color_turn, (720, 120), 40)
+        pygame.draw.circle(screen, board_color, (720, 120), 40, 3)
+        # draw the board
+        for r in range(8):
+            for c in range(8):
+                if (r+c) % 2 == 1:
+                    pygame.draw.rect(screen, brown, (c*square_size, r*square_size, square_size, square_size))
+        # draw the pieces
+        for r in range(8):
+            for c in range(8):
+                center_x = c * square_size + square_size // 2
+                center_y = r * square_size + square_size // 2
+                radius = square_size // 2 - 10
+                if board[r][c] == 'B':
+                    pygame.draw.circle(screen,black, (center_x, center_y), radius)
+                elif board[r][c] == 'BB':
+                    pygame.draw.circle(screen,black, (center_x, center_y), radius)
+                    pygame.draw.circle(screen,red, (center_x, center_y), radius // 3)
+                elif board[r][c] == 'W':
+                    pygame.draw.circle(screen, white, (center_x, center_y), radius)
+                elif board[r][c] == 'WW':
+                    pygame.draw.circle(screen, white, (center_x, center_y), radius)
+                    pygame.draw.circle(screen,red, (center_x, center_y), radius // 3)
     if selected is not None:
         r, c = selected
         pygame.draw.rect(screen, red, (c*square_size, r*square_size, square_size, square_size), 4)
-    if black_points == 12: winner = 'B'
-    elif white_points == 12: winner = 'W'
-
+    if black_points == 12 or white_points == 12:
+        if black_points == 12: winner = 'B'
+        else: winner = 'W'
+        # CONTINUAR MONTANDO O MENU DE VENCEDOR, PRA JOGAR DE NOVO
 
     pygame.display.flip()
