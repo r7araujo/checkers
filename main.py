@@ -10,6 +10,7 @@ pygame.display.set_caption('The checkers game')
 board = create_board()
 clock = pygame.time.Clock()
 play_again_button = None
+win_button = None
 running = True
 selected = None
 turn = 'W'
@@ -32,10 +33,31 @@ while running:
         elif game_state == 'START_MENU':
             ui_manager.process_events(event)
             if event.type == pygame_gui.UI_BUTTON_PRESSED:
+                if win_button != None:
+                    win_button.kill()
+                    win_button = None
                 menu_play_button.kill()
                 menu_play_button = None
+                board = create_board()
+                black_points = white_points = 0
+                turn = 'W'
+                selected = None
                 game_state = 'PLAYING'
                 continue
+        elif game_state == 'GAME_OVER':
+            ui_manager.process_events(event)
+            if event.type == pygame_gui.UI_BUTTON_PRESSED:
+                if event.ui_element == win_button:
+                    if win_button is not None:
+                        win_button.kill()
+                        win_button = None
+                    board = create_board()
+                    black_points = 0
+                    white_points = 0
+                    turn = 'W'
+                    selected = None
+                    game_state = 'PLAYING'
+                    continue
         elif event.type == pygame.MOUSEBUTTONDOWN:
             pos = pygame.mouse.get_pos()
             col = pos[0] // square_size
@@ -127,9 +149,14 @@ while running:
     if selected is not None:
         r, c = selected
         pygame.draw.rect(screen, red, (c*square_size, r*square_size, square_size, square_size), 4)
-    if black_points == 12 or white_points == 12:
-        if black_points == 12: winner = 'B'
-        else: winner = 'W'
-        # CONTINUAR MONTANDO O MENU DE VENCEDOR, PRA JOGAR DE NOVO
-
+    if (black_points == 12 or white_points == 12) and game_state != 'GAME_OVER':
+        winner = 'B' if black_points == 12 else 'W'
+        win_button = win_menu(ui_manager, winner)
+        game_state = 'GAME_OVER'
+    elif game_state == 'GAME_OVER':
+        pygame.draw.rect(screen, (40, 40, 40), (120, 170, 400, 300))
+        victor_color = (255, 255, 255) if white_points == 12 else (0, 0, 0)
+        pygame.draw.circle(screen, victor_color, (320, 260), 60)
+        pygame.draw.circle(screen, (200, 200, 200), (320, 260), 60, 4)
+        ui_manager.draw_ui(screen)
     pygame.display.flip()

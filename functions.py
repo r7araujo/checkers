@@ -137,7 +137,6 @@ def get_mandatory_captures(board, turn):
                             if '_' in actual_position:
                                 if enemy_piece:
                                     mandatory_move.append((r, c, step_r, step_c))
-                                    break 
                             elif nturn in actual_position:
                                 if enemy_piece:
                                     break
